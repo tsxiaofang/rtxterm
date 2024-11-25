@@ -43,7 +43,8 @@
                         <v-text-field label="私钥路径" v-model="server.cert_path" />
                     </v-col>
                     <v-col class="pl-1 pt-0 pb-0" cols="5">
-                        <v-text-field label="私钥密码" v-model="server.cert_pass" type="password" />
+                        <v-text-field label="私钥密码" v-model="server.cert_pass" :type="inputType"
+                            :append-inner-icon="mdi_icon_eye" @click:append-inner="onViewPassowrd" />
                     </v-col>
                 </v-row>
             </v-card-text>
