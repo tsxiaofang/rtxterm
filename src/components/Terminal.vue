@@ -12,7 +12,7 @@ import { readText, writeText } from '@tauri-apps/plugin-clipboard-manager';
 import '@xterm/xterm/css/xterm.css'
 import emitter from '../utils/emitter';
 
-const { tid, sid, select, closeTab } = defineProps(['tid', 'sid', 'select', 'closeTab']);
+const { tid, sid, select, closeTab, fontFamily } = defineProps(['tid', 'sid', 'select', 'closeTab', 'fontFamily']);
 
 const theme = useTheme()
 
@@ -25,7 +25,7 @@ const xterm = new Terminal({
     fontWeight: 'normal',
     fontWeightBold: 'normal',
     //fontFamily: "Monaco, Menlo, Consolas, 'Courier New', monospace",
-    fontFamily: "DejaVuSansMono Nerd Font Mono",
+    fontFamily: fontFamily,
     theme: {
         background: theme.current.value.colors.background,
         foreground: '#C1C2C3',

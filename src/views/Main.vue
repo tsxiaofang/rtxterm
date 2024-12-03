@@ -33,7 +33,8 @@
                 include
             }">
                 <v-list v-model:opened="expandList" density="compact">
-                    <v-list-group class="list_header_padding" v-for="item in serverGroups" :key="item.name" :value="item.name" :title="item.name">
+                    <v-list-group class="list_header_padding" v-for="item in serverGroups" :key="item.name"
+                        :value="item.name" :title="item.name">
                         <template v-slot:activator="{ props }">
                             <v-list-item v-bind="props" />
                         </template>
@@ -76,7 +77,8 @@
         <v-main class="h-screen" v-else>
             <v-tabs-window :model-value="tab" class="h-100">
                 <v-tabs-window-item v-for="item in tabs" :key="item.id" :value="item.id" class="h-100">
-                    <Terminal :tid="item.id" :sid="item.server.id" :select="tab" :closeTab="closeTab" class="h-100" />
+                    <Terminal :tid="item.id" :sid="item.server.id" :select="tab" :closeTab="closeTab" :fontFamily="fontFamily"
+                        class="h-100" />
                 </v-tabs-window-item>
             </v-tabs-window>
         </v-main>
@@ -105,6 +107,7 @@ const serverGroups = ref<Array<ServerGroup> | null>(null);
 const expandList = ref<Array<string>>(['Default']);
 const serverMgr = new ServerMgr();
 const currentwindow = getCurrentWindow();
+const fontFamily = ref<string>('DejaVuSansMono Nerd Font Mono');
 
 let dialogOpened = false;
 let terminalId = 10001;
@@ -127,6 +130,7 @@ currentwindow.listen('tauri://FileTransferMessage', (event: { payload: { rate: n
 
 onMounted(() => {
     serverMgr.getServerConfig().then((config) => {
+        fontFamily.value = config.font_name;
         expandList.value = config.expand_list;
         emitter.emit('FileTransferePathChanged', { local: config.local_path, remote: config.remote_path });
     });

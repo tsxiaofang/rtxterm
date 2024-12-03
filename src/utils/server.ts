@@ -18,6 +18,7 @@ export interface TerminalItem {
 export interface ServerConfig {
     local_path: string,
     remote_path: string,
+    font_name: string,
     expand_list: Array<string>,
 }
 

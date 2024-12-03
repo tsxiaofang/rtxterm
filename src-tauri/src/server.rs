@@ -43,9 +43,17 @@ pub struct ServerGroup {
 pub struct Config {
     #[serde(default)]
     pub proxy_addr: String,
+    #[serde(default = "Config::default_font_name")]
+    pub font_name: String,
     pub local_path: String,
     pub remote_path: String,
     pub expand_list: Vec<String>,
+}
+
+impl Config {
+    fn default_font_name() -> String {
+        String::from("DejaVuSansMono Nerd Font Mono")
+    }
 }
 
 #[derive(Default, Serialize, Deserialize)]
@@ -73,6 +81,7 @@ impl ServerMgr {
             local_path: String::from("F:\\"),
             remote_path: String::from("/home"),
             expand_list: vec![String::from("Default")],
+            font_name: Config::default_font_name(),
         });
 
         Self {
