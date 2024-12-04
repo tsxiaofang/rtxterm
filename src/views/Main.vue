@@ -42,7 +42,7 @@
                             <template v-slot:title>
                                 <v-btn :id="server.id" @click="openTab(server)" class="justify-start text-subtitle-2"
                                     prepend-icon="mdi-network-outline" @mouseover="server.active = true" variant="flat"
-                                    @mouseleave="onMouseleave($event) ? server.active = false : server.active = true"
+                                    @mouseleave="onMouseleave() ? server.active = false : server.active = true"
                                     size="small" block>
                                     {{ server.name }}
                                     <div class="position-absolute right-0 pr-1" v-if="server.active">
@@ -77,8 +77,8 @@
         <v-main class="h-screen" v-else>
             <v-tabs-window :model-value="tab" class="h-100">
                 <v-tabs-window-item v-for="item in tabs" :key="item.id" :value="item.id" class="h-100">
-                    <Terminal :tid="item.id" :sid="item.server.id" :select="tab" :closeTab="closeTab" :fontFamily="fontFamily"
-                        class="h-100" />
+                    <Terminal :tid="item.id" :sid="item.server.id" :select="tab" :closeTab="closeTab"
+                        :fontFamily="fontFamily" class="h-100" />
                 </v-tabs-window-item>
             </v-tabs-window>
         </v-main>
@@ -109,6 +109,7 @@ const serverMgr = new ServerMgr();
 const currentwindow = getCurrentWindow();
 const fontFamily = ref<string>('DejaVuSansMono Nerd Font Mono');
 
+let mouseleave_exclude_click = false;
 let dialogOpened = false;
 let terminalId = 10001;
 let unlistenDrag: UnlistenFn;
@@ -183,6 +184,7 @@ function delServer(server: ServerItem) {
 }
 
 function onGetEditServer(id: string) {
+    mouseleave_exclude_click = true;
     serverMgr.getServerDetail(id).then((server) => {
         emitter.emit(`openEditServer_${id}`, server);
     }).catch((err) => {
@@ -246,9 +248,9 @@ function closeTab(id: string) {
     }
 }
 
-function onMouseleave(event: MouseEvent) {
-    let target = event.relatedTarget as HTMLElement;
-    if (target !== null && target.classList.contains('v-overlay__scrim')) {
+function onMouseleave() {
+    if (mouseleave_exclude_click) {
+        mouseleave_exclude_click = false;
         return false;
     }
     return true;
