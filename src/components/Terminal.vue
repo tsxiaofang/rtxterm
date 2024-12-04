@@ -1,5 +1,5 @@
 <template>
-    <div :id="terminalId" class="pl-1"></div>
+    <div :id="terminalId" style="padding-left:1px;"></div>
 </template>
 
 <script setup lang="ts">
