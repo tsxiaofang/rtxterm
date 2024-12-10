@@ -10,6 +10,8 @@ use tauri::{async_runtime::Mutex, State};
 const ID_CFG_LOCAL: u32 = 1;
 const ID_CFG_REMOTE: u32 = 2;
 const ID_CFG_EXPLST: u32 = 3;
+const ID_CFG_L_GRPS: u32 = 4;
+const ID_CFG_R_GRPS: u32 = 5;
 
 const SERVER_FILE: &str = "servers.json";
 const CONFIG_FILE: &str = "config.json";
@@ -48,6 +50,10 @@ pub struct Config {
     pub local_path: String,
     pub remote_path: String,
     pub expand_list: Vec<String>,
+    #[serde(default)]
+    pub local_grps: Vec<String>,
+    #[serde(default)]
+    pub remote_grps: Vec<String>,
 }
 
 impl Config {
@@ -82,6 +88,7 @@ impl ServerMgr {
             remote_path: String::from("/home"),
             expand_list: vec![String::from("Default")],
             font_name: Config::default_font_name(),
+            ..Default::default()
         });
 
         Self {
@@ -258,10 +265,15 @@ pub async fn ssh_set_config(
     stat: State<'_, ServerContext>,
 ) -> Result<(), Error> {
     let mut server_mgr = stat.lock().await;
-
     match id {
         ID_CFG_LOCAL => server_mgr.config.local_path = value,
         ID_CFG_REMOTE => server_mgr.config.remote_path = value,
+        ID_CFG_L_GRPS => {
+            server_mgr.config.local_grps = serde_json::from_str(&value).map_err(into_essh)?
+        }
+        ID_CFG_R_GRPS => {
+            server_mgr.config.remote_grps = serde_json::from_str(&value).map_err(into_essh)?
+        }
         ID_CFG_EXPLST => {
             server_mgr.config.expand_list = serde_json::from_str(&value).map_err(into_essh)?
         }

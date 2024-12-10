@@ -3,6 +3,8 @@ import { invoke } from '@tauri-apps/api/core'
 export const ID_CFG_LOCAL: number = 1;
 export const ID_CFG_REMOTE: number = 2;
 export const ID_CFG_EXPLST: number = 3;
+export const ID_CFG_L_GRPS: number = 4;
+export const ID_CFG_R_GRPS: number = 5;
 
 export interface ServerItem {
     id: string,
@@ -20,6 +22,8 @@ export interface ServerConfig {
     remote_path: string,
     font_name: string,
     expand_list: Array<string>,
+    local_grps: Array<string>,
+    remote_grps: Array<string>,
 }
 
 export interface ServerDetail {

@@ -46,7 +46,7 @@
 import { ref, onMounted, onUnmounted, watch } from 'vue'
 import { invoke } from '@tauri-apps/api/core'
 import emitter from '../utils/emitter';
-import { ID_CFG_LOCAL, ID_CFG_REMOTE } from '../utils/server';
+import { ID_CFG_L_GRPS, ID_CFG_LOCAL, ID_CFG_R_GRPS, ID_CFG_REMOTE } from '../utils/server';
 
 const { getCurrentServerId } = defineProps(['getCurrentServerId']);
 const openDialog = ref(false);
@@ -57,6 +57,7 @@ const remotePath = ref<string>('');
 const localGroups = ref<Array<string>>([]);
 const remoteGroups = ref<Array<string>>([]);
 let transfering = false;
+let watch_timer: number;
 
 onMounted(() => {
     emitter.on<string>('openFileTransfer', (local_file) => {
@@ -88,6 +89,12 @@ onMounted(() => {
         const pt = info as { local: string, remote: string };
         localPath.value = pt.local;
         remotePath.value = pt.remote;
+    })
+
+    emitter.on<string>('FileTransfereGroupChanged', (info) => {
+        const gp = info as { local: Array<string>, remote: Array<string> };
+        localGroups.value = gp.local;
+        remoteGroups.value = gp.remote;
     })
 })
 
@@ -136,20 +143,67 @@ function onDownload() {
     });
 }
 
-watch(localPath, () => {
-    setTimeout(() => {
+watch(localPath, (_newVal, oldVal) => {
+    if (oldVal === undefined || oldVal.length === 0) {
+        return;
+    }
+    if (watch_timer !== undefined) {
+        clearTimeout(watch_timer);
+    }
+    watch_timer = setTimeout(() => {
+        console.log('localPath', localPath.value);
+        const index: number = (localGroups.value.findIndex((p) => p === localPath.value));
+        if (index === -1) {
+            if (localGroups.value.length >= 8) {
+                localGroups.value.shift();
+            }
+            localGroups.value.push(localPath.value);
+        }
         invoke('ssh_set_config', { id: ID_CFG_LOCAL, value: localPath.value }).catch((e) => {
             console.log(e);
         });
     }, 500);
-})
+}, { immediate: true })
 
-watch(remotePath, () => {
-    setTimeout(() => {
+watch(remotePath, (_newVal, oldVal) => {
+    if (oldVal === undefined || oldVal.length === 0) {
+        return;
+    }
+    if (watch_timer !== undefined) {
+        clearTimeout(watch_timer);
+    }
+    watch_timer = setTimeout(() => {
+        const index: number = (remoteGroups.value.findIndex((p) => p === remotePath.value));
+        if (index === -1) {
+            if (remoteGroups.value.length >= 8) {
+                remoteGroups.value.shift();
+            }
+            remoteGroups.value.push(remotePath.value);
+        }
         invoke('ssh_set_config', { id: ID_CFG_REMOTE, value: remotePath.value }).catch((e) => {
             console.log(e);
         });
     }, 500);
-})
+}, { immediate: true })
+
+watch(localGroups, (_newVal, oldVal) => {
+    if (oldVal.length === 0) {
+        return;
+    }
+    let value = JSON.stringify(localGroups.value);
+    invoke('ssh_set_config', { id: ID_CFG_L_GRPS, value }).catch((e) => {
+        console.log(e);
+    });
+}, { deep: true })
+
+watch(remoteGroups, (_newVal, oldVal) => {
+    if (oldVal.length === 0) {
+        return;
+    }
+    let value = JSON.stringify(remoteGroups.value);
+    invoke('ssh_set_config', { id: ID_CFG_R_GRPS, value }).catch((e) => {
+        console.log(e);
+    });
+}, { deep: true, immediate: false })
 
 </script>

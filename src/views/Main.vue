@@ -104,7 +104,7 @@ const tabs = ref<Array<TerminalItem>>([]);
 const theme = useTheme();
 const appbarColor = ref<string>(theme.current.value.colors.background);
 const serverGroups = ref<Array<ServerGroup> | null>(null);
-const expandList = ref<Array<string>>(['Default']);
+const expandList = ref<Array<string>>([]);
 const serverMgr = new ServerMgr();
 const currentwindow = getCurrentWindow();
 const fontFamily = ref<string>('DejaVuSansMono Nerd Font Mono');
@@ -134,6 +134,7 @@ onMounted(() => {
         fontFamily.value = config.font_name;
         expandList.value = config.expand_list;
         emitter.emit('FileTransferePathChanged', { local: config.local_path, remote: config.remote_path });
+        emitter.emit('FileTransfereGroupChanged', { local: config.local_grps, remote: config.remote_grps });
     });
 
     serverMgr.getServerList().then((servers) => {
