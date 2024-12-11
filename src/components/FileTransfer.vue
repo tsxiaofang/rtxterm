@@ -155,10 +155,14 @@ watch(localPath, (_newVal, oldVal) => {
         const index: number = (localGroups.value.findIndex((p) => p === localPath.value));
         if (index === -1) {
             if (localGroups.value.length >= 8) {
-                localGroups.value.shift();
+                localGroups.value.pop();
             }
-            localGroups.value.push(localPath.value);
+        } else {
+            // 移除当前路径
+            localGroups.value.splice(index, 1);
         }
+        // 从前面插入
+        localGroups.value.unshift(localPath.value);
         invoke('ssh_set_config', { id: ID_CFG_LOCAL, value: localPath.value }).catch((e) => {
             console.log(e);
         });
@@ -176,9 +180,13 @@ watch(remotePath, (_newVal, oldVal) => {
         const index: number = (remoteGroups.value.findIndex((p) => p === remotePath.value));
         if (index === -1) {
             if (remoteGroups.value.length >= 8) {
-                remoteGroups.value.shift();
+                remoteGroups.value.pop();
+            } else {
+                // 移除当前路径
+                remoteGroups.value.splice(index, 1);
             }
-            remoteGroups.value.push(remotePath.value);
+            // 从前面插入
+            remoteGroups.value.unshift(remotePath.value);
         }
         invoke('ssh_set_config', { id: ID_CFG_REMOTE, value: remotePath.value }).catch((e) => {
             console.log(e);
