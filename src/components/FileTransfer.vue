@@ -181,13 +181,13 @@ watch(remotePath, (_newVal, oldVal) => {
         if (index === -1) {
             if (remoteGroups.value.length >= 8) {
                 remoteGroups.value.pop();
-            } else {
-                // 移除当前路径
-                remoteGroups.value.splice(index, 1);
             }
-            // 从前面插入
-            remoteGroups.value.unshift(remotePath.value);
+        } else {
+            // 移除当前路径
+            remoteGroups.value.splice(index, 1);
         }
+        // 从前面插入
+        remoteGroups.value.unshift(remotePath.value);
         invoke('ssh_set_config', { id: ID_CFG_REMOTE, value: remotePath.value }).catch((e) => {
             console.log(e);
         });
