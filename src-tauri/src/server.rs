@@ -12,6 +12,8 @@ const ID_CFG_REMOTE: u32 = 2;
 const ID_CFG_EXPLST: u32 = 3;
 const ID_CFG_L_GRPS: u32 = 4;
 const ID_CFG_R_GRPS: u32 = 5;
+const ID_CFG_F_NAME: u32 = 6;
+const ID_CFG_F_GRPS: u32 = 7;
 
 const SERVER_FILE: &str = "servers.json";
 const CONFIG_FILE: &str = "config.json";
@@ -47,6 +49,8 @@ pub struct Config {
     pub proxy_addr: String,
     #[serde(default = "Config::default_font_name")]
     pub font_name: String,
+    #[serde(default)]
+    pub file_name: String,
     pub local_path: String,
     pub remote_path: String,
     pub expand_list: Vec<String>,
@@ -54,6 +58,8 @@ pub struct Config {
     pub local_grps: Vec<String>,
     #[serde(default)]
     pub remote_grps: Vec<String>,
+    #[serde(default)]
+    pub file_grps: Vec<String>,
 }
 
 impl Config {
@@ -268,11 +274,15 @@ pub async fn ssh_set_config(
     match id {
         ID_CFG_LOCAL => server_mgr.config.local_path = value,
         ID_CFG_REMOTE => server_mgr.config.remote_path = value,
+        ID_CFG_F_NAME => server_mgr.config.file_name = value,
         ID_CFG_L_GRPS => {
             server_mgr.config.local_grps = serde_json::from_str(&value).map_err(into_essh)?
         }
         ID_CFG_R_GRPS => {
             server_mgr.config.remote_grps = serde_json::from_str(&value).map_err(into_essh)?
+        }
+        ID_CFG_F_GRPS => {
+            server_mgr.config.file_grps = serde_json::from_str(&value).map_err(into_essh)?
         }
         ID_CFG_EXPLST => {
             server_mgr.config.expand_list = serde_json::from_str(&value).map_err(into_essh)?

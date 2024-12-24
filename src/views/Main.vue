@@ -133,8 +133,8 @@ onMounted(() => {
     serverMgr.getServerConfig().then((config) => {
         fontFamily.value = config.font_name;
         expandList.value = config.expand_list;
-        emitter.emit('FileTransferePathChanged', { local: config.local_path, remote: config.remote_path });
-        emitter.emit('FileTransfereGroupChanged', { local: config.local_grps, remote: config.remote_grps });
+        emitter.emit('FileTransferePathChanged', { local: config.local_path, remote: config.remote_path, file: config.file_name });
+        emitter.emit('FileTransfereGroupChanged', { local: config.local_grps, remote: config.remote_grps, files: config.file_grps });
     });
 
     serverMgr.getServerList().then((servers) => {

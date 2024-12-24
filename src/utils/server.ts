@@ -5,6 +5,8 @@ export const ID_CFG_REMOTE: number = 2;
 export const ID_CFG_EXPLST: number = 3;
 export const ID_CFG_L_GRPS: number = 4;
 export const ID_CFG_R_GRPS: number = 5;
+export const ID_CFG_F_NAME: number = 6;
+export const ID_CFG_F_GRPS: number = 7;
 
 export interface ServerItem {
     id: string,
@@ -20,10 +22,12 @@ export interface TerminalItem {
 export interface ServerConfig {
     local_path: string,
     remote_path: string,
+    file_name: string,
     font_name: string,
     expand_list: Array<string>,
     local_grps: Array<string>,
     remote_grps: Array<string>,
+    file_grps: Array<string>,
 }
 
 export interface ServerDetail {

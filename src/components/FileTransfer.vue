@@ -17,6 +17,9 @@
                     <v-combobox label="远程路径" v-model="remotePath" :items="remoteGroups" />
                 </v-row>
                 <v-row class="pb-0">
+                    <v-combobox label="文件名称" v-model="fileName" :items="fileGroups" />
+                </v-row>
+                <v-row class="pb-0">
                     <v-combobox label="本地路径" v-model="localPath" :items="localGroups" />
                 </v-row>
                 <v-row>
@@ -46,7 +49,7 @@
 import { ref, onMounted, onUnmounted, watch } from 'vue'
 import { invoke } from '@tauri-apps/api/core'
 import emitter from '../utils/emitter';
-import { ID_CFG_L_GRPS, ID_CFG_LOCAL, ID_CFG_R_GRPS, ID_CFG_REMOTE } from '../utils/server';
+import { ID_CFG_L_GRPS, ID_CFG_LOCAL, ID_CFG_R_GRPS, ID_CFG_REMOTE, ID_CFG_F_GRPS, ID_CFG_F_NAME } from '../utils/server';
 
 const { getCurrentServerId } = defineProps(['getCurrentServerId']);
 const openDialog = ref(false);
@@ -54,8 +57,10 @@ const fileProgress = ref<number>(0);
 const fileProgressInfo = ref<string>(' ');
 const localPath = ref<string>('');
 const remotePath = ref<string>('');
+const fileName = ref<string>('');
 const localGroups = ref<Array<string>>([]);
 const remoteGroups = ref<Array<string>>([]);
+const fileGroups = ref<Array<string>>([]);
 let transfering = false;
 let watch_timer: number;
 
@@ -86,15 +91,17 @@ onMounted(() => {
     })
 
     emitter.on<string>('FileTransferePathChanged', (info) => {
-        const pt = info as { local: string, remote: string };
+        const pt = info as { local: string, remote: string, file: string };
         localPath.value = pt.local;
         remotePath.value = pt.remote;
+        fileName.value = pt.file;
     })
 
     emitter.on<string>('FileTransfereGroupChanged', (info) => {
-        const gp = info as { local: Array<string>, remote: Array<string> };
+        const gp = info as { local: Array<string>, remote: Array<string>, files: Array<string> };
         localGroups.value = gp.local;
         remoteGroups.value = gp.remote;
+        fileGroups.value = gp.files;
     })
 })
 
@@ -103,6 +110,22 @@ onUnmounted(() => {
     emitter.off('FileTransferMessage');
     emitter.off('FileTransferePathChanged');
 })
+
+function get_file_name(path: string) {
+    var n = path.length;
+    var file_name = path;
+    if (n > 1 && path[n - 1] !== '/' && path[n - 1] !== '\\') {
+        file_name += '/';
+    }
+
+    if (fileName.value.length > 1 && (fileName.value[0] === '/' || fileName.value[0] === '\\')) {
+        file_name += fileName.value.substring(1);
+    } else {
+        file_name += fileName.value;
+    }
+
+    return file_name;
+}
 
 function onUpload() {
     let tid = getCurrentServerId();
@@ -115,7 +138,7 @@ function onUpload() {
     transfering = true;
     invoke('ssh_upload', {
         id: tid,
-        localPath: localPath.value,
+        localPath: get_file_name(localPath.value),
         remotePath: remotePath.value
     }).catch((e) => {
         transfering = false;
@@ -136,7 +159,7 @@ function onDownload() {
     invoke<void>('ssh_download', {
         id: tid as number,
         localPath: localPath.value,
-        remotePath: remotePath.value
+        remotePath: get_file_name(remotePath.value)
     }).catch((e) => {
         transfering = false;
         fileProgressInfo.value = e.toString();
@@ -194,6 +217,32 @@ watch(remotePath, (_newVal, oldVal) => {
     }, 500);
 }, { immediate: true })
 
+watch(fileName, (_newVal, oldVal) => {
+    if (oldVal === undefined || oldVal.length === 0) {
+        return;
+    }
+    if (watch_timer !== undefined) {
+        clearTimeout(watch_timer);
+    }
+    watch_timer = setTimeout(() => {
+        const index: number = (fileGroups.value.findIndex((p) => p === fileName.value));
+        if (index === -1) {
+            if (fileGroups.value.length >= 8) {
+                fileGroups.value.pop();
+            }
+        } else {
+            // 移除当前路径
+            fileGroups.value.splice(index, 1);
+        }
+        // 从前面插入
+        fileGroups.value.unshift(fileName.value);
+        invoke('ssh_set_config', { id: ID_CFG_F_NAME, value: fileName.value }).catch((e) => {
+            console.log(e);
+        });
+    }, 500);
+}, { immediate: true })
+
+
 watch(localGroups, (_newVal, oldVal) => {
     if (oldVal.length === 0) {
         return;
@@ -212,6 +261,16 @@ watch(remoteGroups, (_newVal, oldVal) => {
     invoke('ssh_set_config', { id: ID_CFG_R_GRPS, value }).catch((e) => {
         console.log(e);
     });
-}, { deep: true, immediate: false })
+}, { deep: true })
+
+watch(fileGroups, (_newVal, oldVal) => {
+    if (oldVal.length === 0) {
+        return;
+    }
+    let value = JSON.stringify(fileGroups.value);
+    invoke('ssh_set_config', { id: ID_CFG_F_GRPS, value }).catch((e) => {
+        console.log(e);
+    });
+}, { deep: true })
 
 </script>
