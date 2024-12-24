@@ -67,7 +67,17 @@ let watch_timer: number;
 onMounted(() => {
     emitter.on<string>('openFileTransfer', (local_file) => {
         if (local_file !== undefined && local_file !== null) {
-            localPath.value = local_file as string;
+            let file_name = local_file as string;
+            var idx = file_name.lastIndexOf('\\');
+            if (idx === -1) {
+                idx = file_name.lastIndexOf('/');
+            }
+            if (idx !== -1) {
+                fileName.value = file_name.substring(idx + 1);
+                localPath.value = file_name.substring(0, idx);
+            } else {
+                fileName.value = file_name;
+            }
         }
 
         if (openDialog.value) {
