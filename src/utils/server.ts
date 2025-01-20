@@ -7,6 +7,7 @@ export const ID_CFG_L_GRPS: number = 4;
 export const ID_CFG_R_GRPS: number = 5;
 export const ID_CFG_F_NAME: number = 6;
 export const ID_CFG_F_GRPS: number = 7;
+export const ID_CFG_S_DGRP: number = 8;
 
 export interface ServerItem {
     id: string,
@@ -24,6 +25,7 @@ export interface ServerConfig {
     remote_path: string,
     file_name: string,
     font_name: string,
+    server_group: string,
     expand_list: Array<string>,
     local_grps: Array<string>,
     remote_grps: Array<string>,

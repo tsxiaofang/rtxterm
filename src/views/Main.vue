@@ -93,7 +93,7 @@ import Terminal from '../components/Terminal.vue';
 import AddServer from '../components/AddServer.vue';
 import EditServer from '../components/EditServer.vue';
 import FileTransfer from '../components/FileTransfer.vue';
-import { ServerDetail, ServerItem, ServerGroup, ServerMgr, TerminalItem, ID_CFG_EXPLST } from '../utils/server';
+import { ServerDetail, ServerItem, ServerGroup, ServerMgr, TerminalItem, ID_CFG_EXPLST, ID_CFG_S_DGRP } from '../utils/server';
 import emitter from '../utils/emitter';
 import { UnlistenFn, TauriEvent } from '@tauri-apps/api/event';
 import { invoke } from '@tauri-apps/api/core';
@@ -104,6 +104,7 @@ const tabs = ref<Array<TerminalItem>>([]);
 const theme = useTheme();
 const appbarColor = ref<string>(theme.current.value.colors.background);
 const serverGroups = ref<Array<ServerGroup> | null>(null);
+const defGroup = ref<string>('Default');
 const expandList = ref<Array<string>>([]);
 const serverMgr = new ServerMgr();
 const currentwindow = getCurrentWindow();
@@ -133,6 +134,7 @@ onMounted(() => {
     serverMgr.getServerConfig().then((config) => {
         fontFamily.value = config.font_name;
         expandList.value = config.expand_list;
+        defGroup.value = config.server_group;
         emitter.emit('FileTransferePathChanged', { local: config.local_path, remote: config.remote_path, file: config.file_name });
         emitter.emit('FileTransfereGroupChanged', { local: config.local_grps, remote: config.remote_grps, files: config.file_grps });
     });
@@ -161,10 +163,11 @@ function openAddServer() {
     if (!drawer.value) {
         drawer.value = true;
     }
-    emitter.emit('openAddServer');
+    emitter.emit('openAddServer', defGroup.value);
 }
 
 function onAddServer(server: ServerDetail) {
+    defGroup.value = server.group;
     serverMgr.addServer(server).then(() => {
         serverMgr.getServerList().then((servers) => {
             serverGroups.value = servers;
@@ -207,6 +210,7 @@ function onCurrentServerId() {
 }
 
 function onEditServer(id: string, server: ServerDetail) {
+    defGroup.value = server.group;
     serverMgr.updateServer(id, server).then(() => {
         serverMgr.getServerList().then((servers) => {
             serverGroups.value = servers;
@@ -276,6 +280,17 @@ function tabsChanged() {
     }
 }
 
+watch(defGroup, (newVal, oldVal) => {
+    if (oldVal === undefined || oldVal === null || oldVal.length === 0 || newVal === "Default") {
+        return;
+    }
+    setTimeout(() => {
+        invoke('ssh_set_config', { id: ID_CFG_S_DGRP, value: defGroup.value }).catch((err) => {
+            console.log('ssh_set_config error:', err);
+        })
+    }, 500);
+});
+
 function hideServersPanel() {
     if (!dialogOpened) {
         drawer.value = false;
@@ -313,8 +328,8 @@ function include() {
 }
 
 const groupNames = computed(() => {
-    if (serverGroups.value === null || serverGroups.value === undefined) {
-        return [];
+    if (serverGroups.value === null || serverGroups.value === undefined || serverGroups.value.length === 0) {
+        return [defGroup.value];
     }
     return serverGroups.value.map((item) => item.name);
 });

@@ -51,7 +51,8 @@
             <v-divider />
 
             <v-card-actions class="d-flex pl-5 pr-6">
-                <v-switch v-model="server.use_proxy" :label="`代理: ${server.use_proxy ? '开':'关'}`" density="compact"></v-switch>
+                <v-switch v-model="server.use_proxy" :label="`代理: ${server.use_proxy ? '开' : '关'}`"
+                    density="compact"></v-switch>
                 <v-spacer></v-spacer>
                 <v-btn text="取消" variant="elevated" @click="openDialog = false; onDialogEvent(false);"></v-btn>
                 <v-btn text="确定" variant="elevated"
@@ -91,7 +92,8 @@ function addServer() {
 }
 
 onMounted(() => {
-    emitter.on<string>('openAddServer', () => {
+    emitter.on<string>('openAddServer', (info) => {
+        server.value.group = info as string;
         openDialog.value = true;
         onDialogEvent(true);
     })

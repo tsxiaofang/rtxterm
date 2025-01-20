@@ -14,6 +14,7 @@ const ID_CFG_L_GRPS: u32 = 4;
 const ID_CFG_R_GRPS: u32 = 5;
 const ID_CFG_F_NAME: u32 = 6;
 const ID_CFG_F_GRPS: u32 = 7;
+const ID_CFG_S_DGRP: u32 = 8;
 
 const SERVER_FILE: &str = "servers.json";
 const CONFIG_FILE: &str = "config.json";
@@ -51,8 +52,13 @@ pub struct Config {
     pub font_name: String,
     #[serde(default)]
     pub file_name: String,
+    #[serde(default = "Config::default_local_path")]
     pub local_path: String,
+    #[serde(default = "Config::default_remote_path")]
     pub remote_path: String,
+    #[serde(default = "Config::default_group_name")]
+    pub server_group: String,
+    #[serde(default = "Config::default_expand_list")]
     pub expand_list: Vec<String>,
     #[serde(default)]
     pub local_grps: Vec<String>,
@@ -65,6 +71,18 @@ pub struct Config {
 impl Config {
     fn default_font_name() -> String {
         String::from("DejaVuSansMono Nerd Font Mono")
+    }
+    fn default_group_name() -> String {
+        String::from("Default")
+    }
+    fn default_local_path() -> String {
+        String::from("F:\\")
+    }
+    fn default_remote_path() -> String {
+        String::from("/home")
+    }
+    fn default_expand_list() -> Vec<String> {
+        vec![String::from("Default")]
     }
 }
 
@@ -87,15 +105,8 @@ impl ServerMgr {
         app_path.pop();
 
         let cfg_path = app_path.join(CONFIG_FILE);
-        let json_str = std::fs::read_to_string(&cfg_path).unwrap_or_default();
-        let config: Config = serde_json::from_str(&json_str).unwrap_or(Config {
-            proxy_addr: String::default(),
-            local_path: String::from("F:\\"),
-            remote_path: String::from("/home"),
-            expand_list: vec![String::from("Default")],
-            font_name: Config::default_font_name(),
-            ..Default::default()
-        });
+        let json_str = std::fs::read_to_string(&cfg_path).unwrap_or(String::from("{}"));
+        let config: Config = serde_json::from_str(&json_str).unwrap_or_default();
 
         Self {
             config,
@@ -286,6 +297,9 @@ pub async fn ssh_set_config(
         }
         ID_CFG_EXPLST => {
             server_mgr.config.expand_list = serde_json::from_str(&value).map_err(into_essh)?
+        }
+        ID_CFG_S_DGRP => {
+            server_mgr.config.server_group = value;
         }
         _ => return Err(into_essh(anyhow::anyhow!("invalid config id:{id}"))),
     }
