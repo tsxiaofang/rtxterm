@@ -3095,7 +3095,7 @@ dependencies = [
 
 [[package]]
 name = "rtxterm"
-version = "0.6.7"
+version = "0.6.8"
 dependencies = [
  "anyhow",
  "async-ssh2-lite",

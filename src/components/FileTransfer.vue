@@ -45,6 +45,7 @@
         </v-card>
     </v-dialog>
 </template>
+
 <script setup lang="ts">
 import { ref, onMounted, onUnmounted, watch } from 'vue'
 import { invoke } from '@tauri-apps/api/core'

@@ -22,7 +22,9 @@
             <template v-slot:append>
                 <v-container>
                     <v-row align-content-sm="center" justify="center">
-                        <v-btn icon="mdi-cog-outline" density="comfortable" variant="text" />
+                        <v-btn icon="mdi-cog-outline" density="comfortable" variant="text"
+                            @click="emitter.emit('OpenSettings')" />
+                        <Settings :onFontChanged="onFontChanged" />
                     </v-row>
                 </v-container>
             </template>
@@ -97,6 +99,7 @@ import { ServerDetail, ServerItem, ServerGroup, ServerMgr, TerminalItem, ID_CFG_
 import emitter from '../utils/emitter';
 import { UnlistenFn, TauriEvent } from '@tauri-apps/api/event';
 import { invoke } from '@tauri-apps/api/core';
+import Settings from '../components/Settings.vue';
 
 const drawer = ref(false);
 const tab = ref<string | null>(null);
@@ -137,6 +140,7 @@ onMounted(() => {
         defGroup.value = config.server_group;
         emitter.emit('FileTransferePathChanged', { local: config.local_path, remote: config.remote_path, file: config.file_name });
         emitter.emit('FileTransfereGroupChanged', { local: config.local_grps, remote: config.remote_grps, files: config.file_grps });
+        emitter.emit('SettingsChanged', { proxy_addr: config.proxy_addr, font_name: config.font_name });
     });
 
     serverMgr.getServerList().then((servers) => {
@@ -218,6 +222,10 @@ function onEditServer(id: string, server: ServerDetail) {
     }).catch((err) => {
         console.log('updateServer error:', err);
     });
+}
+
+function onFontChanged(font_name: string) {
+    fontFamily.value = font_name;
 }
 
 function openTab(item: ServerItem) {

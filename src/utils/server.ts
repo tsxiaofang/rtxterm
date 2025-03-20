@@ -8,6 +8,7 @@ export const ID_CFG_R_GRPS: number = 5;
 export const ID_CFG_F_NAME: number = 6;
 export const ID_CFG_F_GRPS: number = 7;
 export const ID_CFG_S_DGRP: number = 8;
+export const ID_CFG_S_VALS: number = 9;
 
 export interface ServerItem {
     id: string,
@@ -21,6 +22,7 @@ export interface TerminalItem {
 }
 
 export interface ServerConfig {
+    proxy_addr: String,
     local_path: string,
     remote_path: string,
     file_name: string,

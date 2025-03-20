@@ -15,6 +15,7 @@ const ID_CFG_R_GRPS: u32 = 5;
 const ID_CFG_F_NAME: u32 = 6;
 const ID_CFG_F_GRPS: u32 = 7;
 const ID_CFG_S_DGRP: u32 = 8;
+const ID_CFG_S_VALS: u32 = 9;
 
 const SERVER_FILE: &str = "servers.json";
 const CONFIG_FILE: &str = "config.json";
@@ -42,6 +43,14 @@ pub struct ServerDetail {
 pub struct ServerGroup {
     name: String,
     servers: Vec<ServerItem>,
+}
+
+#[derive(Clone, Debug, Default, Serialize, Deserialize)]
+pub struct ConfigValues {
+    #[serde(default)]
+    pub proxy_addr: String,
+    #[serde(default = "Config::default_font_name")]
+    pub font_name: String,
 }
 
 #[derive(Clone, Debug, Default, Serialize, Deserialize)]
@@ -298,8 +307,11 @@ pub async fn ssh_set_config(
         ID_CFG_EXPLST => {
             server_mgr.config.expand_list = serde_json::from_str(&value).map_err(into_essh)?
         }
-        ID_CFG_S_DGRP => {
-            server_mgr.config.server_group = value;
+        ID_CFG_S_DGRP => server_mgr.config.server_group = value,
+        ID_CFG_S_VALS => {
+            let vals: ConfigValues = serde_json::from_str(&value).map_err(into_essh)?;
+            server_mgr.config.font_name = vals.font_name;
+            server_mgr.config.proxy_addr = vals.proxy_addr;
         }
         _ => return Err(into_essh(anyhow::anyhow!("invalid config id:{id}"))),
     }
