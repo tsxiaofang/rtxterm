@@ -31,8 +31,8 @@ const xterm = new Terminal({
         foreground: '#C1C2C3',
     },
     // 光标闪烁
-    cursorBlink: true,
-    cursorStyle: 'underline',
+    cursorBlink: false,
+    cursorStyle: 'block', // 'block' | 'underline' | 'bar';
     // scrollback: 0,
     // scrollback: 10000,
     // tabStopWidth: 4,
