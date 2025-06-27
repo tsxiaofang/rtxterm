@@ -1,7 +1,7 @@
 [package]
-name = "rtxterm"
+name = "xtermrs"
 version = "0.6.8"
-description = "Rust Tauri Xterm"
+description = "xterm for rust tauri"
 authors = ["tsxiaofang"]
 edition = "2021"
 
@@ -11,7 +11,7 @@ edition = "2021"
 # The `_lib` suffix may seem redundant but it is necessary
 # to make the lib name unique and wouldn't conflict with the bin name.
 # This seems to be only an issue on Windows, see https://github.com/rust-lang/cargo/issues/8519
-name = "rtxterm_lib"
+name = "xtermrs_lib"
 crate-type = ["staticlib", "cdylib", "rlib"]
 
 [build-dependencies]
@@ -24,13 +24,12 @@ tauri-plugin-shell = "2"
 serde = { version = "1", features = ["derive"] }
 serde_json = "1"
 async-ssh2-lite = { version = "0.5", features = ["tokio", "openssl-on-win32"] }
-#base64 = "0.22"
 tokio = { version = "1", features = ["full"] }
 tauri-plugin-window-state = "2"
 tauri-plugin-clipboard-manager = "2"
-md5 = "0.7"
+md5 = "0.8"
 openssl = { version = "0.10" }
-rand = "0.8"
+rand = "0.9"
 crc32fast = "1.4"
 futures-util = "0.3"
 

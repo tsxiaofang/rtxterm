@@ -17,7 +17,7 @@ You can learn more about Take Over mode [here](https://github.com/johnsoncodehk/
 
 
 Template created! To get started run:
-  cd rtxterm
+  cd xtermrs
   npm install
   npm run tauri android init
 

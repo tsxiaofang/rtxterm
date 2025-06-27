@@ -1,5 +1,5 @@
 {
-  "name": "rtxterm",
+  "name": "xtermrs",
   "private": true,
   "version": "0.1.0",
   "type": "module",
@@ -17,7 +17,7 @@
     "@xterm/addon-fit": "^0.10.0",
     "@xterm/xterm": "^5.5.0",
     "mitt": "^3.0.1",
-    "rtxterm": "file:",
+    "xtermrs": "file:",
     "vue": "^3.3.4",
     "vue-demi": "^0.14.6",
     "vue-router": "^4.4.5",

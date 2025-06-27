@@ -1,8 +1,8 @@
 {
-  "$schema": "https://schema.tauri.app/config/2.0.0",
-  "productName": "rtxterm",
+  "$schema": "https://schema.tauri.app/config/2",
+  "productName": "xtermrs",
   "version": "0.6.0",
-  "identifier": "com.rtxterm.app",
+  "identifier": "com.app.xtermrs",
   "build": {
     "beforeDevCommand": "npm run dev",
     "devUrl": "http://localhost:1420",
@@ -13,7 +13,7 @@
     "windows": [
       {
         "label": "main",
-        "title": "Rust Tauri Xterm",
+        "title": "Xterm for rust tauri",
         "visible": false,
         "width": 1024,
         "height": 600

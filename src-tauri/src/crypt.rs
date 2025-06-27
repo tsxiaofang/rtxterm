@@ -29,7 +29,7 @@ pub fn pass_to_key(user_name: &str, pass: &str) -> Vec<u8> {
     ctx.consume(&uname);
     ctx.consume(G_IV);
     ctx.consume(&upass);
-    let d = ctx.compute();
+    let d = ctx.finalize();
 
     d.to_vec()
 }
@@ -89,7 +89,7 @@ pub fn verify_password<P: AsRef<Path>>(
     if !file_name.as_ref().exists() {
         let mut data_key = vec![0_u8; 16];
         let buf = data_key.as_mut_slice();
-        let mut rng = rand::thread_rng();
+        let mut rng = rand::rng();
         rng.fill_bytes(buf);
         return Ok((pass_to_key(name, pass), data_key));
     }
